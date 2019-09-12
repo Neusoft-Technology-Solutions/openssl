@@ -1,1 +1,1 @@
-../ssl/heartbeat_test.c
+#include "../ssl/heartbeat_test.c"

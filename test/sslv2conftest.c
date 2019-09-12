@@ -1,1 +1,1 @@
-../ssl/sslv2conftest.c
+#include "../ssl/sslv2conftest.c"

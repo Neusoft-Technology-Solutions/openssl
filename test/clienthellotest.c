@@ -1,1 +1,1 @@
-../ssl/clienthellotest.c
+#include "../ssl/clienthellotest.c"

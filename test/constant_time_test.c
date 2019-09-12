@@ -1,1 +1,1 @@
-../crypto/constant_time_test.c
+#include "../crypto/constant_time_test.c"
