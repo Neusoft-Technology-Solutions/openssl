@@ -1655,9 +1655,11 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method, STACK
     }
     OPENSSL_free(co_list);      /* Not needed any longer */
 
+    CRYPTO_w_lock(CRYPTO_LOCK_SSL);
     tmp_cipher_list = sk_SSL_CIPHER_dup(cipherstack);
     if (tmp_cipher_list == NULL) {
         sk_SSL_CIPHER_free(cipherstack);
+        CRYPTO_w_unlock(CRYPTO_LOCK_SSL);
         return NULL;
     }
     if (*cipher_list != NULL)
@@ -1670,6 +1672,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method, STACK
                                      ssl_cipher_ptr_id_cmp);
 
     sk_SSL_CIPHER_sort(*cipher_list_by_id);
+    CRYPTO_w_unlock(CRYPTO_LOCK_SSL);
     return (cipherstack);
 }
 
