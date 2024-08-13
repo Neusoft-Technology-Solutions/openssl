@@ -321,7 +321,7 @@ static int padlock_insn_cpuid_available(void)
      * We're checking if the bit #21 of EFLAGS can be toggled. If yes =
      * CPUID is available.
      */
-    asm volatile ("pushf\n"
+    __asm__ volatile ("pushf\n"
                   "popl %%eax\n"
                   "xorl $0x200000, %%eax\n"
                   "movl %%eax, %%ecx\n"
@@ -352,7 +352,7 @@ static int padlock_available(void)
     /* Are we running on the Centaur (VIA) CPU? */
     eax = 0x00000000;
     vendor_string[12] = 0;
-    asm volatile ("pushl  %%ebx\n"
+    __asm__ volatile ("pushl  %%ebx\n"
                   "cpuid\n"
                   "movl   %%ebx,(%%edi)\n"
                   "movl   %%edx,4(%%edi)\n"
@@ -363,13 +363,13 @@ static int padlock_available(void)
 
     /* Check for Centaur Extended Feature Flags presence */
     eax = 0xC0000000;
-    asm volatile ("pushl %%ebx; cpuid; popl %%ebx":"+a" (eax)::"ecx", "edx");
+    __asm__ volatile ("pushl %%ebx; cpuid; popl %%ebx":"+a" (eax)::"ecx", "edx");
     if (eax < 0xC0000001)
         return 0;
 
     /* Read the Centaur Extended Feature Flags */
     eax = 0xC0000001;
-    asm volatile ("pushl %%ebx; cpuid; popl %%ebx":"+a" (eax),
+    __asm__ volatile ("pushl %%ebx; cpuid; popl %%ebx":"+a" (eax),
                   "=d"(edx)::"ecx");
 
     /* Fill up some flags */
@@ -388,7 +388,7 @@ static inline void padlock_bswapl(AES_KEY *ks)
     unsigned int *key = ks->rd_key;
 
     while (i--) {
-        asm volatile ("bswapl %0":"+r" (*key));
+        __asm__ volatile ("bswapl %0":"+r" (*key));
         key++;
     }
 }
@@ -401,7 +401,7 @@ static inline void padlock_bswapl(AES_KEY *ks)
  */
 static inline void padlock_reload_key(void)
 {
-    asm volatile ("pushfl; popfl");
+    __asm__ volatile ("pushfl; popfl");
 }
 
 #    ifndef OPENSSL_NO_AES
@@ -416,7 +416,7 @@ static inline void padlock_reload_key(void)
  */
 static inline void padlock_verify_context(struct padlock_cipher_data *cdata)
 {
-    asm volatile ("pushfl\n"
+    __asm__ volatile ("pushfl\n"
                   "       btl     $30,(%%esp)\n"
                   "       jnc     1f\n"
                   "       cmpl    %2,%1\n"
@@ -438,7 +438,7 @@ static inline void *name(size_t cnt,            \
         struct padlock_cipher_data *cdata,      \
         void *out, const void *inp)             \
 {       void *iv;                               \
-        asm volatile ( "pushl   %%ebx\n"        \
+        __asm__ volatile ( "pushl   %%ebx\n"        \
                 "       leal    16(%0),%%edx\n" \
                 "       leal    32(%0),%%ebx\n" \
                         rep_xcrypt "\n"         \
@@ -464,7 +464,7 @@ static inline unsigned int padlock_xstore(void *addr, unsigned int edx_in)
 {
     unsigned int eax_out;
 
-    asm volatile (".byte 0x0f,0xa7,0xc0" /* xstore */
+    __asm__ volatile (".byte 0x0f,0xa7,0xc0" /* xstore */
                   :"=a" (eax_out), "=m"(*(unsigned *)addr)
                   :"D"(addr), "d"(edx_in)
         );
