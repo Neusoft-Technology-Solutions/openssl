@@ -213,13 +213,15 @@ static void look_str_cb(int nid, STACK_OF(ENGINE) *sk, ENGINE *def, void *arg)
         return;
     for (i = 0; i < sk_ENGINE_num(sk); i++) {
         ENGINE *e = sk_ENGINE_value(sk, i);
-        EVP_PKEY_ASN1_METHOD *ameth;
-        e->pkey_asn1_meths(e, &ameth, NULL, nid);
-        if (ameth != NULL && ((int)strlen(ameth->pem_str) == lk->len) &&
-            !strncasecmp(ameth->pem_str, lk->str, lk->len)) {
-            lk->e = e;
-            lk->ameth = ameth;
-            return;
+        if(e) {
+           EVP_PKEY_ASN1_METHOD *ameth;
+           e->pkey_asn1_meths(e, &ameth, NULL, nid);
+           if (ameth != NULL && ((int)strlen(ameth->pem_str) == lk->len) &&
+               !strncasecmp(ameth->pem_str, lk->str, lk->len)) {
+               lk->e = e;
+               lk->ameth = ameth;
+               return;
+           }
         }
     }
 }
